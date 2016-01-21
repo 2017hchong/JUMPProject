@@ -1,8 +1,8 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources xmlns:xliff="urn:oasis:names:tc:xliff:document:1.2">
 
-    <string name="app_name">PocketSphinx Demo</string>
-    
+    <string name="app_name">Photos To Go</string>
+
     <string name="kws_caption">Say \"take picture\" to activate camera.</string>
     <string name="commands_caption">To take picture say a command.</string>
     <string name="finished_caption">Picture taken.</string>

@@ -10,10 +10,16 @@ import java.io.IOException;
 import java.util.HashMap;
 
 import android.app.Activity;
+import android.content.Intent;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.util.Log;
+import android.view.View;
+import android.view.Window;
+import android.view.animation.Animation;
+import android.view.animation.AnimationUtils;
 import android.widget.Button;
+import android.widget.ImageButton;
 import android.widget.SlidingDrawer;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -25,9 +31,10 @@ import edu.cmu.pocketsphinx.SpeechRecognizer;
 public class PocketSphinxActivity extends Activity implements
         RecognitionListener {
 
-    Button slideButton;
-    SlidingDrawer slidingDrawer;
+   // Button slideButton;
+    //SlidingDrawer slidingDrawer;
 
+    ImageButton returnButton;
 
     /* Named searches allow to quickly reconfigure the decoder */
     private static final String KWS_SEARCH = "wakeup";
@@ -47,7 +54,7 @@ public class PocketSphinxActivity extends Activity implements
     @Override
     public void onCreate(Bundle state) {
         super.onCreate(state);
-
+        this.requestWindowFeature(Window.FEATURE_NO_TITLE);
 
 
         // Prepare the data for UI
@@ -58,6 +65,22 @@ public class PocketSphinxActivity extends Activity implements
         ((TextView) findViewById(R.id.caption_text))
                 .setText("Preparing the recognizer");
 
+
+        final Animation animAlpha = AnimationUtils.loadAnimation(this, R.anim.anim_alpha);
+        returnButton = (ImageButton)findViewById(R.id.returnButton);
+        // Register the onClick listener with the implementation above
+        returnButton.setOnClickListener(new View.OnClickListener() {
+            public void onClick(View v)
+            {
+                v.startAnimation(animAlpha);
+
+                recognizer.cancel();
+                recognizer.shutdown();
+                startActivity(new Intent(PocketSphinxActivity.this, MainScreen.class));
+            }
+        });
+
+        /*
 
         slideButton = (Button) findViewById(R.id.slideButton);
         slidingDrawer = (SlidingDrawer) findViewById(R.id.SlidingDrawer);
@@ -75,6 +98,7 @@ public class PocketSphinxActivity extends Activity implements
                 slideButton.setText("Open Help");
             }
         });
+        */
 
         // Recognizer initialization is a time-consuming and it involves IO,
         // so we execute it in async task

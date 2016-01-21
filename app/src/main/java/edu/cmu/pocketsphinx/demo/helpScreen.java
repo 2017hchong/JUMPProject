@@ -13,36 +13,27 @@ import android.view.animation.AnimationUtils;
 /**
  * Created by hayunchong on 1/21/16.
  */
-public class MainScreen extends Activity {
+public class helpScreen extends Activity {
 
-    ImageButton cameraButton, helpButton;
+    ImageButton returnButton;
 
     @Override
     public void onCreate(Bundle state) {
         super.onCreate(state);
-
         this.requestWindowFeature(Window.FEATURE_NO_TITLE);
-        setContentView(R.layout.mainscreen);
+
+        setContentView(R.layout.help);
         final Animation animAlpha = AnimationUtils.loadAnimation(this, R.anim.anim_alpha);
 
-        cameraButton = (ImageButton) findViewById(R.id.cameraButton);
+        returnButton = (ImageButton) findViewById(R.id.returnButton);
         // Register the onClick listener with the implementation above
-        cameraButton.setOnClickListener(new View.OnClickListener() {
+        returnButton.setOnClickListener(new View.OnClickListener() {
             public void onClick(View v) {
                 v.startAnimation(animAlpha);
-                startActivity(new Intent(MainScreen.this, PocketSphinxActivity.class));
+                startActivity(new Intent(helpScreen.this, MainScreen.class));
             }
         });
 
-        helpButton=(ImageButton) findViewById(R.id.helpButton);
-        // Register the onClick listener with the implementation above
-        helpButton.setOnClickListener(new View.OnClickListener() {
-            public void onClick(View v) {
-                v.startAnimation(animAlpha);
-                startActivity(new Intent(MainScreen.this, helpScreen.class));
-
-            }
-        });
     }
 
 }

@@ -12,6 +12,7 @@ import android.view.animation.AnimationUtils;
 
 /**
  * Created by hayunchong on 1/21/16.
+ * Hello
  */
 public class MainScreen extends Activity {
 

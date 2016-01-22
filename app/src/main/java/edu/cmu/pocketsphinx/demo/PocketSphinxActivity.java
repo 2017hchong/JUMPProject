@@ -8,11 +8,13 @@ import static edu.cmu.pocketsphinx.SpeechRecognizerSetup.defaultSetup;
 import java.io.File;
 import java.io.IOException;
 import java.util.HashMap;
+import java.util.Locale;
 
 import android.app.Activity;
 import android.content.Intent;
 import android.os.AsyncTask;
 import android.os.Bundle;
+import android.os.SystemClock;
 import android.util.Log;
 import android.view.View;
 import android.view.Window;
@@ -28,8 +30,11 @@ import edu.cmu.pocketsphinx.Hypothesis;
 import edu.cmu.pocketsphinx.RecognitionListener;
 import edu.cmu.pocketsphinx.SpeechRecognizer;
 
+import android.speech.tts.TextToSpeech;
+import android.speech.tts.TextToSpeech.OnInitListener;
+
 public class PocketSphinxActivity extends Activity implements
-        RecognitionListener {
+        RecognitionListener, OnInitListener {
 
    // Button slideButton;
     //SlidingDrawer slidingDrawer;
@@ -38,11 +43,7 @@ public class PocketSphinxActivity extends Activity implements
 
     /* Named searches allow to quickly reconfigure the decoder */
     private static final String KWS_SEARCH = "wakeup";
-
-    //private static final String FORECAST_SEARCH = "forecast";
-    //private static final String DIGITS_SEARCH = "digits";
-    //private static final String PHONE_SEARCH = "phones";
-    //private static final String MENU_SEARCH = "menu";
+    private TextToSpeech tts;
     private static final String COMMANDS_SEARCH = "commands";
 
     /* Keyword we are looking for to activate menu */
@@ -65,6 +66,8 @@ public class PocketSphinxActivity extends Activity implements
         ((TextView) findViewById(R.id.caption_text))
                 .setText("Preparing the recognizer");
 
+
+        tts = new TextToSpeech(this, this);
 
         final Animation animAlpha = AnimationUtils.loadAnimation(this, R.anim.anim_alpha);
         returnButton = (ImageButton)findViewById(R.id.returnButton);
@@ -129,10 +132,30 @@ public class PocketSphinxActivity extends Activity implements
     }
 
     @Override
+    public void onInit(int code){
+        if(code==TextToSpeech.SUCCESS)
+        {
+            tts.setLanguage(Locale.getDefault());
+        }
+        else {
+            tts = null;
+            Toast.makeText(this, "Failed to initialize TTS engine.",
+
+                    Toast.LENGTH_SHORT).show();
+        }
+
+    }
+
+    @Override
     public void onDestroy() {
-        super.onDestroy();
         recognizer.cancel();
         recognizer.shutdown();
+        if (tts!=null) {
+            tts.stop();
+            tts.shutdown();
+        }
+
+        super.onDestroy();
     }
     
     /**
@@ -146,10 +169,12 @@ public class PocketSphinxActivity extends Activity implements
     	    return;
 
         String text = hypothesis.getHypstr();
-        if (text.equals(KEYPHRASE))
+        if (text.equals(KEYPHRASE)) {
             switchSearch(COMMANDS_SEARCH);
-        else
+        }
+        else {
             ((TextView) findViewById(R.id.result_text)).setText(text);
+        }
     }
 
     //Translate word commands to degrees
@@ -217,10 +242,12 @@ public class PocketSphinxActivity extends Activity implements
 
     public void rotateCamera(int degree)
     {
-        if(degree != -1)
-        {
+        if(degree != -1) {
             //Rotate camera by degree
-            Log.i("TAKE PICTURE", "Rotate by this degree: "+degree);
+            Log.i("TAKE PICTURE", "Rotate by this degree: " + degree);
+            if (!tts.isSpeaking()) {
+                tts.speak("Taking picture at "+degree+" degrees", TextToSpeech.QUEUE_FLUSH, null);
+            }
         }
 
     }
@@ -257,8 +284,9 @@ public class PocketSphinxActivity extends Activity implements
         // If we are not spotting, start listening with timeout (10000 ms or 10 seconds).
         if (searchName.equals(KWS_SEARCH))
             recognizer.startListening(searchName);
-        else
-            recognizer.startListening(searchName, 10000);
+        else {
+            recognizer.startListening(searchName, 50000);
+        }
 
         String caption = getResources().getString(captions.get(searchName));
         ((TextView) findViewById(R.id.caption_text)).setText(caption);
